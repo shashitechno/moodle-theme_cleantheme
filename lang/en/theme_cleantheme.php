@@ -61,7 +61,7 @@ $string['logodesc'] = 'Please upload your custom logo here if you want to add it
 If the height of your logo is more than 75px add the following CSS rule to the Custom CSS box below.<br>
 a.logo {height: 100px;} or whatever height in pixels the logo is.';
 
-$string['pluginname'] = 'search_cleantheme';
+$string['pluginname'] = 'theme_cleantheme';   // naming acccording to frankenstyle convention
 
 $string['region-side-post'] = 'Right';
 $string['region-side-pre'] = 'Left';
