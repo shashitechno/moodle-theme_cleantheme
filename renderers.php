@@ -77,7 +77,7 @@
           $output .= html_writer::empty_tag('input', array('type' => 'submit',
               'value' => get_string('go')));
 
-          $items=array(html_writer::link(new moodle_url('search.php?search='.optional_param('search','',PARAM_TEXT).'&sort=score&order=desc'),'By Relevance'),html_writer::link(new moodle_url('search.php?search='.optional_param('search','',PARAM_TEXT).'&sort=shortname&order=desc'),'By ShortName'),html_writer::link(new moodle_url('search.php?search='.optional_param('search','',PARAM_TEXT).'&sort=startdate&order=desc'),'Oldest'),html_writer::link(new moodle_url('search.php?search='.optional_param('search','', PARAM_TEXT).'&sort=startdate&order=desc'),'Newest'));
+          $items=array(html_writer::link(new moodle_url('search.php?search='.optional_param('search','',PARAM_TEXT).'&sort=score&order=desc'),'By Relevance'),html_writer::link(new moodle_url('search.php?search='.optional_param('search','',PARAM_TEXT).'&sort=shortname&order=desc'),'By ShortName'),html_writer::link(new moodle_url('search.php?search='.optional_param('search','',PARAM_TEXT).'&sort=startdate&order=asc'),'Oldest'),html_writer::link(new moodle_url('search.php?search='.optional_param('search','', PARAM_TEXT).'&sort=startdate&order=desc'),'Newest'));
           $output.= html_writer::alist($items,array("class"=>"solr_sort2"),'ol');
           $output .= html_writer::end_tag('fieldset');
           $output .= html_writer::end_tag('form');
