@@ -16,6 +16,25 @@ a.logo {
     float: right;
 }
 
+ol.solr_sort2 {
+	background: #ffffff !important;
+	text-decoration: none !important;
+	border: 1px solid #cccccc !important;
+	padding: 2px 0 1px !important;
+	float: right !important;
+	list-style-type:none
+}
+.solr_sort2 li {
+	display: block !important; /* FF3 */
+	padding: 2px 2px 2px 4px !important;
+}
+.solr_sort2 li:hover {
+	background: #efffb0 !important;
+}
+.solr_sort2 a {
+	text-decoration: none !important;
+}
+
 /* Custom CSS Settings
 -------------------------*/
 [[setting:customcss]]
