@@ -65,4 +65,3 @@ $string['pluginname'] = 'search_cleantheme';
 
 $string['region-side-post'] = 'Right';
 $string['region-side-pre'] = 'Left';
-

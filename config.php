@@ -29,32 +29,29 @@
  */
 
 $THEME->name = 'cleantheme';
-
-/////////////////////////////////
-// The only thing you need to change in this file when copying it to
-// create a new theme is the name above. You also need to change the name
-// in version.php and lang/en/theme_clean.php as well.
-//////////////////////////////////
-//
-$THEME->doctype = 'html5';
-$THEME->parents = array('bootstrapbase');
-$THEME->sheets = array('custom');
+$THEME->doctype                 = 'html5';
+$THEME->parents                 = array(
+    'bootstrapbase'
+);
+$THEME->sheets                  = array(
+    'custom'
+);
 $THEME->supportscssoptimisation = false;
-$THEME->yuicssmodules = array();
+$THEME->yuicssmodules           = array();
 
 $THEME->editor_sheets = array();
 
 $THEME->plugins_exclude_sheets = array(
     'block' => array(
-        'html',
+        'html'
     ),
     'gradereport' => array(
-        'grader',
-    ),
+        'grader'
+    )
 );
 
 $THEME->rendererfactory = 'theme_overridden_renderer_factory';
-$THEME->csspostprocess = 'clean_process_css';
+$THEME->csspostprocess  = 'clean_process_css';
 
 $useragent = '';
 if (!empty($_SERVER['HTTP_USER_AGENT'])) {
