@@ -301,7 +301,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                     $out['qtime'] = sprintf(("%.3f"), $header->QTime / 1000);
                 }
                 if ($didyoumean != false) {
-                    echo '<h3>Did You Mean<a href=search.php?search=' . $didyoumean . '> ' . $didyoumean . '</a>?<h3>';
+                    echo '<h3>Did You Mean<a href=search.php?search=' . rawUrlEncode($didyoumean) . '> ' . $didyoumean . '</a>?<h3>';
                 }
                 
                 if ($response->numFound != 0) {
