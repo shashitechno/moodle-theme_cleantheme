@@ -26,7 +26,7 @@ class theme_cleantheme_core_renderer extends core_renderer
 require_once($CFG->dirroot . "/course/renderer.php");
 require_once($CFG->dirroot . "/admin/tool/coursesearch/SolrPhpClient/Apache/Solr/Service.php");
 require_once($CFG->dirroot . "/admin/tool/coursesearch/SolrPhpClient/Apache/Solr/HttpTransport/Curl.php");
-require_once($CFG->dirroot . "/admin/tool/coursesearch/lib/Basic-solr-functions.class.inc.php");
+require_once($CFG->dirroot . "/admin/tool/coursesearch/Basic-solr-functions.class.inc.php");
 class theme_cleantheme_core_course_renderer extends core_course_renderer
 {
     /**   @override
@@ -188,7 +188,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $response = null;
         $options  = self::tool_coursesearch_solr_params();
         $solr     = new Solr_basic();
-        if ($solr->connect($options, true, $CFG->dirroot . '/admin/tool/coursesearch')) {
+        if ($solr->connect($options, true, $CFG->dirroot . '/admin/tool/coursesearch/')) {
             $params            = array();
             $params['defType'] = 'dismax';
             $params['qf']      = 'id^5 fullname^10 shortname^5 summary^3.5 startdate^1.5'; // TODO : Add "content" custom fields ?
