@@ -81,14 +81,14 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             'value' => get_string('go')
         ));
         $items = array(
-            html_writer::link(new moodle_url('search.php?search=' . optional_param('search', '', PARAM_TEXT) .
-            '&sort=score&order=desc'), 'By Relevance'),
-            html_writer::link(new moodle_url('search.php?search=' . optional_param('search', '', PARAM_TEXT) .
-            '&sort=shortname&order=desc'), 'By ShortName'),
-            html_writer::link(new moodle_url('search.php?search=' . optional_param('search', '', PARAM_TEXT) .
-            '&sort=startdate&order=asc'), 'Oldest'),
-            html_writer::link(new moodle_url('search.php?search=' . optional_param('search', '', PARAM_TEXT) .
-            '&sort=startdate&order=desc'), 'Newest')
+            html_writer::link(new moodle_url('search.php?search=' . optional_param(
+                'search', '', PARAM_TEXT) . '&sort=score&order=desc'), 'By Relevance'),
+            html_writer::link(new moodle_url('search.php?search=' . optional_param(
+                'search', '', PARAM_TEXT) . '&sort=shortname&order=desc'), 'By ShortName'),
+            html_writer::link(new moodle_url('search.php?search=' . optional_param(
+                'search', '', PARAM_TEXT) . '&sort=startdate&order=asc'), 'Oldest'),
+            html_writer::link(new moodle_url('search.php?search=' . optional_param(
+                'search', '', PARAM_TEXT) . '&sort=startdate&order=desc'), 'Newest')
         );
         $output .= html_writer::alist($items, array(
             "class" => "solr_sort2"
@@ -125,7 +125,8 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             $courses                              = array();
             foreach ($response->docs as $doc) {
                 $resultinfo = array();
-                $docid      = strval($doc->id);
+                $docid      = strval($doc->courseid);
+                $doc->id    = $doc->courseid;
                 foreach ($doc as $key => $value) {
                     $resultinfo[$key] = $value;
                 }
@@ -147,13 +148,12 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 }
             }
             $chelper = new coursecat_helper();
-            $chelper->set_show_courses
-            (self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options
-            ($displayoptions)->set_search_criteria($searchcriteria)->set_attributes(
-            array(
+            $chelper->set_show_courses(
+                self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options($displayoptions)->set_search_criteria(
+                $searchcriteria)->set_attributes(array(
                 'class' => $class
             ));
-            $totalcount  = $this->tool_coursesearch_coursecount($response);
+            $totalcount  = $this->tool_coursesearch_coursecount($courses);
             $courseslist = $this->coursecat_courses($chelper, $courses, $totalcount);
             if (!$totalcount) {
                 if (!empty($searchcriteria['search'])) {
@@ -191,7 +191,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         if ($solr->connect($options, true, $CFG->dirroot . '/admin/tool/coursesearch/')) {
             $params            = array();
             $params['defType'] = 'dismax';
-            $params['qf']      = 'id^5 fullname^10 shortname^5 summary^3.5 startdate^1.5'; // TODO : Add "content" custom fields ?
+            $params['qf']      = 'courseid^5 fullname^10 shortname^5 summary^3.5 startdate^1.5 content filename';
             if (empty($qry) || $qry == '*' || $qry == '*:*') {
                 $params['q.alt'] = "*:*";
                 $qry             = '';
@@ -244,7 +244,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 echo 'Query Time ' . $header->QTime / 1000 . ' Seconds';
                 $teasers = get_object_vars($results->highlighting);
                 if (isset($results->spellcheck->suggestions->collation)) {
-                    $didyoumean = $results->spellcheck->suggestions->collation;
+                    $didyoumean = $results->spellcheck->suggestions->collation->collationQuery;
                 } else {
                     $didyoumean = false;
                 }
@@ -255,7 +255,8 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                     $out['qtime'] = sprintf(("%.3f"), $header->QTime / 1000);
                 }
                 if ($didyoumean != false) {
-                echo html_writer::tag('h3','Did You Mean '.html_writer::link(new moodle_url('search.php?search='.rawurlencode($didyoumean)),$didyoumean).'?');
+                    echo html_writer::tag('h3', 'Did You Mean ' . html_writer::link(
+                        new moodle_url('search.php?search=' . rawurlencode($didyoumean)), $didyoumean) . '?');
                 }
             }
             return $response;
@@ -272,22 +273,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $options['solr_path'] = get_config('tool_coursesearch', 'solrpath');
         return $options;
     }
-    public function tool_coursesearch_coursecount(stdClass $response) {
-        $count = $response->numFound;
-        foreach ($response->docs as $doc) {
-            $resultinfo = array();
-            $docid      = strval($doc->id);
-            foreach ($doc as $key => $value) {
-                $resultinfo[$key] = $value;
-            }
-            $obj[$docid] = json_decode(json_encode($resultinfo), false);
-            if (empty($obj[$docid]->visibility)) {
-                context_helper::preload_from_record($obj[$docid]);
-                if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($docid))) {
-                    $count -= 1;
-                }
-            }
-        }
-        return $count;
+    public function tool_coursesearch_coursecount($courses) {
+        return count($courses);
     }
 }
