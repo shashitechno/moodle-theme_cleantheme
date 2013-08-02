@@ -51,7 +51,7 @@ $THEME->plugins_exclude_sheets = array(
 );
 
 $THEME->rendererfactory = 'theme_overridden_renderer_factory';
-$THEME->csspostprocess  = 'clean_process_css';
+$THEME->csspostprocess  = 'cleantheme_process_css';
 
 $useragent = '';
 if (!empty($_SERVER['HTTP_USER_AGENT'])) {
