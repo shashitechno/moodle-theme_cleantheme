@@ -153,7 +153,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 $searchcriteria)->set_attributes(array(
                 'class' => $class
             ));
-            $totalcount  = $this->tool_coursesearch_coursecount($courses);
+            $totalcount  = $this->tool_coursesearch_coursecount($response);
             $courseslist = $this->coursecat_courses($chelper, $courses, $totalcount);
             if (!$totalcount) {
                 if (!empty($searchcriteria['search'])) {
@@ -273,7 +273,23 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $options['solr_path'] = get_config('tool_coursesearch', 'solrpath');
         return $options;
     }
-    public function tool_coursesearch_coursecount($courses) {
-        return count($courses);
+    public function tool_coursesearch_coursecount($response) {
+        $count = $response->numFound;
+        foreach ($response->docs as $doc) {
+                $resultinfo = array();
+                $docid      = strval($doc->courseid);
+                $doc->id    = $doc->courseid;
+                foreach ($doc as $key => $value) {
+                    $resultinfo[$key] = $value;
+                }
+                $obj[$docid] = json_decode(json_encode($resultinfo), false);
+                if (empty($obj[$docid]->visibility)) {
+                    context_helper::preload_from_record($obj[$docid]);
+                    if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($docid))) {
+                       $count-=1;
+                    }
+                }
+             }
+             return $count;
     }
 }
