@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Strings for component 'theme_clean', language 'en'
  *
@@ -21,8 +20,7 @@
  * @copyright 2013 Moodle, moodle.org
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$string['choosereadme'] = '
+$string['choosereadme']     = '
 <div class="clearfix">
 <div class="well">
 <h2>Clean</h2>
@@ -44,24 +42,17 @@ Website: <a href="http://www.basbrands.nl">www.basbrands.nl</a>
 <h3>More information</h3>
 <p><a href="cleantheme/README.txt">How to copy and customise this theme.</a></p>
 </div></div>';
-
-$string['configtitle'] = 'cleantheme';
-
-$string['customcss'] = 'Custom CSS';
-$string['customcssdesc'] = 'Whatever CSS rules you add to this textarea will be reflected in every page, making for easier customization of this theme.';
-
-$string['footnote'] = 'Footnote';
-$string['footnotedesc'] = 'Whatever you add to this textarea will be displayed in the footer throughout your Moodle site.';
-
-$string['invert'] = 'Invert navbar';
-$string['invertdesc'] = 'Swaps text and background for the navbar at the top of the page between black and white.';
-
-$string['logo'] = 'Logo';
-$string['logodesc'] = 'Please upload your custom logo here if you want to add it to the header.<br>
+$string['configtitle']      = 'cleantheme';
+$string['customcss']        = 'Custom CSS';
+$string['customcssdesc']    = 'Whatever CSS rules you add to this textarea will be reflected in every page, making for easier customization of this theme.';
+$string['footnote']         = 'Footnote';
+$string['footnotedesc']     = 'Whatever you add to this textarea will be displayed in the footer throughout your Moodle site.';
+$string['invert']           = 'Invert navbar';
+$string['invertdesc']       = 'Swaps text and background for the navbar at the top of the page between black and white.';
+$string['logo']             = 'Logo';
+$string['logodesc']         = 'Please upload your custom logo here if you want to add it to the header.<br>
 If the height of your logo is more than 75px add the following CSS rule to the Custom CSS box below.<br>
 a.logo {height: 100px;} or whatever height in pixels the logo is.';
-
-$string['pluginname'] = 'search_cleantheme';
-
+$string['pluginname']       = 'search_cleantheme';
 $string['region-side-post'] = 'Right';
-$string['region-side-pre'] = 'Left';
+$string['region-side-pre']  = 'Left';

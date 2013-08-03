@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Moodle's Clean theme, an example of how to make a Bootstrap theme
  *
@@ -27,12 +26,10 @@
  * @copyright  2013 Moodle, moodle.org
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die;
-
-$plugin->version   = 2013050100;
-$plugin->requires  = 2013050100;
-$plugin->component = 'theme_cleantheme';
+$plugin->version      = 2013050100;
+$plugin->requires     = 2013050100;
+$plugin->component    = 'theme_cleantheme';
 $plugin->dependencies = array(
-    'theme_bootstrapbase'  => 2013050100,
+    'theme_bootstrapbase' => 2013050100
 );
