@@ -191,7 +191,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         if ($solr->connect($options, true, $CFG->dirroot . '/admin/tool/coursesearch/')) {
             $params            = array();
             $params['defType'] = 'dismax';
-            $params['qf']      = 'courseid^5 fullname^10 shortname^5 summary^3.5 startdate^1.5 content filename';
+            $params['qf']      = 'idnumber^5 fullname^10 shortname^5 summary^3.5 startdate^1.5 content filename';
             if (empty($qry) || $qry == '*' || $qry == '*:*') {
                 $params['q.alt'] = "*:*";
                 $qry             = '';
