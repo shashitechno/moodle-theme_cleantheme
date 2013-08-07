@@ -80,7 +80,7 @@ class SearchResults
      */
     public function tool_coursesearch_search($array) {
         $config = self::tool_coursesearch_solr_params();
-        $qry    = stripslashes($_GET['search']);
+        $qry    = stripslashes(optional_param('search','',PARAM_TEXT));
         $offset = $array['offset'];
         $count  = $array['limit'];
         $fq     = (isset($_GET['fq'])) ? $_GET['fq'] : '';
