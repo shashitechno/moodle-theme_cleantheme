@@ -80,9 +80,9 @@ class SearchResults
      */
     public function tool_coursesearch_search($array) {
         $config = self::tool_coursesearch_solr_params();
-        $qry    = stripslashes(optional_param('search','',PARAM_TEXT));
-        $offset = $array['offset'];
-        $count  = $array['limit'];
+        $qry    = stripslashes(optional_param('search', '', PARAM_TEXT));
+        $offset = isset($array['offset'])?$array['offset']:0;
+        $count  = isset($array['limit'])?$array['limit']:20;   // TODO input from user how many results perpage.
         $fq     = (isset($_GET['fq'])) ? $_GET['fq'] : '';
         $sort   = (isset($_GET['sort'])) ? $_GET['sort'] : '';
         $order  = (isset($_GET['order'])) ? $_GET['order'] : '';
