@@ -24,9 +24,6 @@ class theme_cleantheme_core_renderer extends core_renderer
 {
 }
 require_once($CFG->dirroot . "/course/renderer.php");
-require_once($CFG->dirroot . "/admin/tool/coursesearch/SolrPhpClient/Apache/Solr/Service.php");
-require_once($CFG->dirroot . "/admin/tool/coursesearch/SolrPhpClient/Apache/Solr/HttpTransport/Curl.php");
-require_once($CFG->dirroot . "/admin/tool/coursesearch/Basic-solr-functions.class.inc.php");
 class theme_cleantheme_core_course_renderer extends core_course_renderer
 {
     /**   @override
@@ -81,14 +78,14 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             'value' => get_string('go')
         ));
         $items = array(
-            html_writer::link(new moodle_url('search.php?search=' . optional_param(
-                'search', '', PARAM_TEXT) . '&sort=score&order=desc'), 'By Relevance'),
-            html_writer::link(new moodle_url('search.php?search=' . optional_param(
-                'search', '', PARAM_TEXT) . '&sort=shortname&order=desc'), 'By ShortName'),
-            html_writer::link(new moodle_url('search.php?search=' . optional_param(
-                'search', '', PARAM_TEXT) . '&sort=startdate&order=asc'), 'Oldest'),
-            html_writer::link(new moodle_url('search.php?search=' . optional_param(
-                'search', '', PARAM_TEXT) . '&sort=startdate&order=desc'), 'Newest')
+            html_writer::link(new moodle_url(
+                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=score&order=desc'), 'By Relevance'),
+            html_writer::link(new moodle_url(
+                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=shortname&order=desc'), 'By ShortName'),
+            html_writer::link(new moodle_url(
+                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=startdate&order=asc'), 'Oldest'),
+            html_writer::link(new moodle_url(
+                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=startdate&order=desc'), 'Newest')
         );
         $output .= html_writer::alist($items, array(
             "class" => "solr_sort2"
@@ -108,11 +105,13 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $content = '';
         if (!empty($searchcriteria)) {
             require_once($CFG->libdir . '/coursecatlib.php');
+            require_once('results.php');
             $displayoptions = array(
                 'sort' => array(
                     'displayname' => 1
                 )
             );
+            $ob             = new SearchResults();
             $perpage        = optional_param('perpage', 0, PARAM_RAW);
             if ($perpage !== 'all') {
                 $displayoptions['limit']  = ((int) $perpage <= 0) ? $CFG->coursesperpage : (int) $perpage;
@@ -121,40 +120,58 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             }
             $displayoptions['paginationurl']      = new moodle_url('/course/search.php', $searchcriteria);
             $displayoptions['paginationallowall'] = true;
-            $response                             = self::tool_coursesearch_search($displayoptions);
             $courses                              = array();
-            foreach ($response->docs as $doc) {
+            $class                                = 'course-search-result';
+            $chelper                              = new coursecat_helper();
+            $chelper->set_show_courses
+            (self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options($displayoptions)->set_search_criteria(
+                $searchcriteria)->set_attributes(array(
+                'class' => $class
+            ));
+            if ($ob->is_dependency_resolved() == '0') {
+                $response   = $ob->tool_coursesearch_search($displayoptions);
                 $resultinfo = array();
-                $docid      = strval($doc->courseid);
-                $doc->id    = $doc->courseid;
-                foreach ($doc as $key => $value) {
-                    $resultinfo[$key] = $value;
-                }
-                $obj[$docid] = json_decode(json_encode($resultinfo), false);
-                if (empty($obj[$docid]->visibility)) {
-                    context_helper::preload_from_record($obj[$docid]);
-                    if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($docid))) {
-                        unset($obj[$docid]);
+                foreach ($response->groups as $doclists => $doclist) {
+                    foreach ($doclist->doclist->docs as $doc) {
+                        $doc->id = $doc->courseid;
+                        foreach ($doc as $key => $value) {
+                            $resultinfo[$key] = $value;
+                        }
+                        $obj[$doc->courseid] = json_decode(json_encode($resultinfo), false);
+                        if (($obj[$doc->courseid]->visibility) == '0') {
+                            context_helper::preload_from_record($obj[$doc->courseid]);
+                            if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($doc->courseid))) {
+                                unset($obj[$doc->courseid]);
+                            }
+                        }
+                        if (isset($obj[$doc->courseid])) {
+                            $courses[$doc->courseid] = new course_in_list($obj[$doc->courseid]);
+                        }
                     }
                 }
-                if (isset($obj[$docid])) {
-                    $courses[$docid] = new course_in_list($obj[$docid]);
-                }
+                $totalcount = $ob->tool_coursesearch_coursecount($response);
+            } else {
+                $courses    = coursecat::search_courses($searchcriteria, $chelper->get_courses_display_options());
+                $totalcount = coursecat::search_courses_count($searchcriteria);
             }
-            $class = 'course-search-result';
             foreach ($searchcriteria as $key => $value) {
                 if (!empty($value)) {
                     $class .= ' course-search-result-' . $key;
                 }
             }
-            $chelper = new coursecat_helper();
-            $chelper->set_show_courses(
-                self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options($displayoptions)->set_search_criteria(
-                $searchcriteria)->set_attributes(array(
-                'class' => $class
-            ));
-            $totalcount  = $this->tool_coursesearch_coursecount($response);
             $courseslist = $this->coursecat_courses($chelper, $courses, $totalcount);
+            global $OUTPUT;
+            switch ($ob->is_dependency_resolved()) {
+                case 1:
+                    $content .= $OUTPUT->notification('Looks like Admin tool is not installed', 'notifyproblem');
+                    break;
+                case 02:
+                    $content .= $OUTPUT->notification('Apache Solr: Your site was unable to contact the
+                     Apache Solr server. you will get results from core moodle search.', 'notifyproblem');
+                    break;
+                case 12:
+                    $content .= "";   // TODO add the get_string [String localization].
+            }
             if (!$totalcount) {
                 if (!empty($searchcriteria['search'])) {
                     $content .= $this->heading(get_string('nocoursesfound', '', $searchcriteria['search']));
@@ -179,117 +196,5 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             $content .= $this->box_end();
         }
         return $content;
-    }
-    /*
-     * Search functions
-     */
-    public function tool_coursesearch_query($qry, $offset, $count, $fq, $sortby, $options) {
-        global $CFG;
-        $response = null;
-        $options  = self::tool_coursesearch_solr_params();
-        $solr     = new Solr_basic();
-        if ($solr->connect($options, true, $CFG->dirroot . '/admin/tool/coursesearch/')) {
-            $params            = array();
-            $params['defType'] = 'dismax';
-            $params['qf']      = 'idnumber^5 fullname^10 shortname^5 summary^3.5 startdate^1.5 content filename';
-            if (empty($qry) || $qry == '*' || $qry == '*:*') {
-                $params['q.alt'] = "*:*";
-                $qry             = '';
-            }
-            $params['pf']                         = 'fullname^15 shortname^10';
-            $params['fq']                         = $fq;
-            $params['fl']                         = '*,score';
-            $params['hl']                         = 'on';
-            $params['hl.fl']                      = 'fullname';
-            $params['hl.snippets']                = '3';
-            $params['hl.fragsize']                = '50';
-            $params['sort']                       = $sortby;
-            $params['spellcheck.onlyMorePopular'] = 'false';
-            $params['spellcheck.extendedResults'] = 'false';
-            $params['spellcheck.collate']         = 'true';
-            $params['spellcheck.count']           = '1';
-            $params['spellcheck']                 = 'true';
-            $response                             = $solr->search($qry, $offset, $count, $params);
-            if (!$response->getHttpStatus() == 200) {
-                $response = null;
-            }
-        }
-        return $response;
-    }
-    public function tool_coursesearch_search($array) {
-        $config = self::tool_coursesearch_solr_params();
-        $qry    = stripslashes($_GET['search']);
-        $offset = $array['offset'];
-        $count  = $array['limit'];
-        $fq     = (isset($_GET['fq'])) ? $_GET['fq'] : '';
-        $sort   = (isset($_GET['sort'])) ? $_GET['sort'] : '';
-        $order  = (isset($_GET['order'])) ? $_GET['order'] : '';
-        $isdym  = (isset($_GET['isdym'])) ? $_GET['isdym'] : 0;
-        $fqitms = '';
-        $out    = array();
-        if (!$qry) {
-            $qry = '';
-        }
-        if ($sort && $order) {
-            $sortby = $sort . ' ' . $order;
-        } else {
-            $sortby = '';
-            $order  = '';
-        }
-        if ($qry) {
-            $results = self::tool_coursesearch_query($qry, $offset, $count, $fqitms, $sortby, $config);
-            if ($results) {
-                $response = $results->response;
-                $header   = $results->responseHeader;
-                echo 'Query Time ' . $header->QTime / 1000 . ' Seconds';
-                $teasers = get_object_vars($results->highlighting);
-                if (isset($results->spellcheck->suggestions->collation)) {
-                    $didyoumean = $results->spellcheck->suggestions->collation->collationQuery;
-                } else {
-                    $didyoumean = false;
-                }
-                $out['hits']  = sprintf(("%d"), $response->numFound);
-                $out['qtime'] = false;
-                $outputinfo   = true;
-                if ($outputinfo) {
-                    $out['qtime'] = sprintf(("%.3f"), $header->QTime / 1000);
-                }
-                if ($didyoumean != false) {
-                    echo html_writer::tag('h3', 'Did You Mean ' . html_writer::link(
-                        new moodle_url('search.php?search=' . rawurlencode($didyoumean)), $didyoumean) . '?');
-                }
-            }
-            return $response;
-        }
-    }
-    /**
-     * Return the array of solr configuration
-     * @return array of solr configuration values 
-     */
-    public function tool_coursesearch_solr_params() {
-        $options              = array();
-        $options['solr_host'] = get_config('tool_coursesearch', 'solrhost');
-        $options['solr_port'] = get_config('tool_coursesearch', 'solrport');
-        $options['solr_path'] = get_config('tool_coursesearch', 'solrpath');
-        return $options;
-    }
-    public function tool_coursesearch_coursecount($response) {
-        $count = $response->numFound;
-        foreach ($response->docs as $doc) {
-                $resultinfo = array();
-                $docid      = strval($doc->courseid);
-                $doc->id    = $doc->courseid;
-                foreach ($doc as $key => $value) {
-                    $resultinfo[$key] = $value;
-                }
-                $obj[$docid] = json_decode(json_encode($resultinfo), false);
-                if (empty($obj[$docid]->visibility)) {
-                    context_helper::preload_from_record($obj[$docid]);
-                    if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($docid))) {
-                       $count-=1;
-                    }
-                }
-             }
-             return $count;
     }
 }

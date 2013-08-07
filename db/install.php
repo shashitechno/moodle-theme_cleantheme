@@ -13,23 +13,19 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Moodle's Clean theme, an example of how to make a Bootstrap theme
+ * Post installation and migration code.
  *
- * DO NOT MODIFY THIS THEME!
- * COPY IT FIRST, THEN RENAME THE COPY AND MODIFY IT INSTEAD.
- *
- * For full information about creating Moodle themes, see:
- * http://docs.moodle.org/dev/Themes_2.0
- *
- * @package    theme_clean
- * @copyright  2013 Moodle, moodle.org
+ * @package    tool
+ * @subpackage qeupgradehelper
+ * @copyright  2011 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die;
-$plugin->version      = 2013050102;
-$plugin->requires     = 2013050100;
-$plugin->component    = 'theme_cleantheme';
-$plugin->dependencies = array(
-    'theme_bootstrapbase' => 2013050100
-);
+
+function xmldb_tool_coursesearch_install() {
+    global $CFG;
+
+}
