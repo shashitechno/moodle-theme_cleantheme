@@ -163,14 +163,13 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             global $OUTPUT;
             switch ($ob->is_dependency_resolved()) {
                 case 1:
-                    $content .= $OUTPUT->notification('Looks like Admin tool is not installed', 'notifyproblem');
+                    $content .= $OUTPUT->notification(get_string('admintoolerror', 'theme_cleantheme'), 'notifyproblem');
                     break;
                 case 02:
-                    $content .= $OUTPUT->notification('Apache Solr: Your site was unable to contact the
-                     Apache Solr server. you will get results from core moodle search.', 'notifyproblem');
+                    $content .= $OUTPUT->notification(get_string('solrpingerror', 'theme_cleantheme'), 'notifyproblem');
                     break;
                 case 12:
-                    $content .= "";   // TODO add the get_string [String localization].
+                    $content .= $OUTPUT->notification(get_string('dependencyerror', 'theme_cleantheme'), 'notifyproblem');
             }
             if (!$totalcount) {
                 if (!empty($searchcriteria['search'])) {

@@ -56,3 +56,7 @@ a.logo {height: 100px;} or whatever height in pixels the logo is.';
 $string['pluginname']       = 'search_cleantheme';
 $string['region-side-post'] = 'Right';
 $string['region-side-pre']  = 'Left';
+$string['solrpingerror']    =  'Apache Solr: Your site was unable to contact the
+                                Apache Solr server. Search results will come from core moodle search.';
+$string['admintoolerror']   =  'Admin tool is not installed ! Search results will come from core moodle search';
+$string['dependencyerror']  = 'Neither admin tool is installed nor solr is configured. Please correct those error. Search results will come from core moodle search'; 
