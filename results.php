@@ -26,7 +26,7 @@
 */
 require_once($CFG->dirroot . "/admin/tool/coursesearch/SolrPhpClient/Apache/Solr/Service.php");
 require_once($CFG->dirroot . "/admin/tool/coursesearch/SolrPhpClient/Apache/Solr/HttpTransport/Curl.php");
-require_once($CFG->dirroot . "/admin/tool/coursesearch/Solr.php");
+require_once($CFG->dirroot . "/admin/tool/coursesearch/solrlib.php");
 class SearchResults
 {
     /**
