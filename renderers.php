@@ -20,7 +20,7 @@
  * @copyright  2013
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class theme_cleantheme_core_renderer extends core_renderer
+class theme_cleantheme_core_renderer extends theme_bootstrapbase_core_renderer
 {
 }
 require_once($CFG->dirroot . "/course/renderer.php");
