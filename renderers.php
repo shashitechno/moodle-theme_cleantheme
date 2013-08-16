@@ -79,13 +79,17 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         ));
         $items = array(
             html_writer::link(new moodle_url(
-                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=score&order=desc'), 'By Relevance'),
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'score', 'order'=>'desc')), 'By Relevance'),
             html_writer::link(new moodle_url(
-                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=shortname&order=desc'), 'By ShortName'),
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'shortname', 'order'=>'desc')), 'By ShortName'),
             html_writer::link(new moodle_url(
-                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=startdate&order=asc'), 'Oldest'),
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'asc')), 'Oldest'),
             html_writer::link(new moodle_url(
-                'search.php?search=' . optional_param('search', '', PARAM_TEXT) . '&sort=startdate&order=desc'), 'Newest')
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'desc')), 'Newest')
         );
         $output .= html_writer::alist($items, array(
             "class" => "solr_sort2"
