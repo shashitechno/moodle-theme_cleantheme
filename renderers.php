@@ -34,6 +34,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      * @return string
      */
     public function course_search_form($value = '', $format = 'plain') {
+        $this->page->requires->js_init_call('M.tool_coursesearch.auto');
         static $count = 0;
         $formid = 'coursesearch';
         if ((++$count) > 1) {
@@ -79,17 +80,17 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         ));
         $items = array(
             html_writer::link(new moodle_url(
-                '/course/search.php', array('search'=>optional_param(
-                    'search', '', PARAM_TEXT), 'sort'=>'score', 'order'=>'desc')), get_string('relevance', 'theme_cleantheme')),
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'score', 'order'=>'desc')), 'By Relevance'),
             html_writer::link(new moodle_url(
-                '/course/search.php', array('search'=>optional_param(
-                    'search', '', PARAM_TEXT), 'sort'=>'shortname', 'order'=>'desc')), get_string('shortname', 'theme_cleantheme')),
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'shortname', 'order'=>'desc')), 'By ShortName'),
             html_writer::link(new moodle_url(
-                '/course/search.php', array('search'=>optional_param(
-                    'search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'asc')), get_string('oldest', 'theme_cleantheme')),
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'asc')), 'Oldest'),
             html_writer::link(new moodle_url(
-                '/course/search.php', array('search'=>optional_param(
-                    'search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'desc')), get_string('newest', 'theme_cleantheme'))
+                '/course/search.php', array(
+                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'desc')), 'Newest')
         );
         $output .= html_writer::alist($items, array(
             "class" => "solr_sort2"
@@ -109,13 +110,13 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $content = '';
         if (!empty($searchcriteria)) {
             require_once($CFG->libdir . '/coursecatlib.php');
-            require_once('results.php');
+            require_once($CFG->dirroot.'/'.$CFG->admin.'/tool/coursesearch/locallib.php');
             $displayoptions = array(
                 'sort' => array(
                     'displayname' => 1
                 )
             );
-            $ob             = new SearchResults();
+            $ob             = new tool_coursesearch_locallib();
             $perpage        = optional_param('perpage', 0, PARAM_RAW);
             if ($perpage !== 'all') {
                 $displayoptions['limit']  = ((int) $perpage <= 0) ? $CFG->coursesperpage : (int) $perpage;
@@ -132,7 +133,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 $searchcriteria)->set_attributes(array(
                 'class' => $class
             ));
-            if ($ob->is_dependency_resolved() == '0') {
+            if ($ob->tool_coursesearch_pluginchecks() == '0') {
                 $response   = $ob->tool_coursesearch_search($displayoptions);
                 $resultinfo = array();
                 foreach ($response->groups as $doclists => $doclist) {
@@ -165,7 +166,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             }
             $courseslist = $this->coursecat_courses($chelper, $courses, $totalcount);
             global $OUTPUT;
-            switch ($ob->is_dependency_resolved()) {
+            switch ($ob->tool_coursesearch_pluginchecks()) {
                 case 1:
                     $content .= $OUTPUT->notification(get_string('admintoolerror', 'theme_cleantheme'), 'notifyproblem');
                     break;
