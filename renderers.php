@@ -110,7 +110,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $content = '';
         if (!empty($searchcriteria)) {
             require_once($CFG->libdir . '/coursecatlib.php');
-            require_once($CFG->dirroot.'/'.$CFG->admin.'/tool/coursesearch/locallib.php');
+            require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
             $displayoptions = array(
                 'sort' => array(
                     'displayname' => 1
