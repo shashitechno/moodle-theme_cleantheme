@@ -79,18 +79,26 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             'value' => get_string('go')
         ));
         $items = array(
-            html_writer::link(new moodle_url(
-                '/course/search.php', array(
-                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'score', 'order'=>'desc')), 'By Relevance'),
-            html_writer::link(new moodle_url(
-                '/course/search.php', array(
-                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'shortname', 'order'=>'desc')), 'By ShortName'),
-            html_writer::link(new moodle_url(
-                '/course/search.php', array(
-                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'asc')), 'Oldest'),
-            html_writer::link(new moodle_url(
-                '/course/search.php', array(
-                    'search'=>optional_param('search', '', PARAM_TEXT), 'sort'=>'startdate', 'order'=>'desc')), 'Newest')
+            html_writer::link(new moodle_url('/course/search.php', array(
+                'search' => optional_param('search', '', PARAM_TEXT),
+                'sort' => 'score',
+                'order' => 'desc'
+            )), 'By Relevance'),
+            html_writer::link(new moodle_url('/course/search.php', array(
+                'search' => optional_param('search', '', PARAM_TEXT),
+                'sort' => 'shortname',
+                'order' => 'desc'
+            )), 'By ShortName'),
+            html_writer::link(new moodle_url('/course/search.php', array(
+                'search' => optional_param('search', '', PARAM_TEXT),
+                'sort' => 'startdate',
+                'order' => 'asc'
+            )), 'Oldest'),
+            html_writer::link(new moodle_url('/course/search.php', array(
+                'search' => optional_param('search', '', PARAM_TEXT),
+                'sort' => 'startdate',
+                'order' => 'desc'
+            )), 'Newest')
         );
         $output .= html_writer::alist($items, array(
             "class" => "solr_sort2"
@@ -128,9 +136,8 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             $courses                              = array();
             $class                                = 'course-search-result';
             $chelper                              = new coursecat_helper();
-            $chelper->set_show_courses
-            (self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options($displayoptions)->set_search_criteria(
-                $searchcriteria)->set_attributes(array(
+            $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options(
+            $displayoptions)->set_search_criteria($searchcriteria)->set_attributes(array(
                 'class' => $class
             ));
             if ($ob->tool_coursesearch_pluginchecks() == '0') {
@@ -165,16 +172,18 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 }
             }
             $courseslist = $this->coursecat_courses($chelper, $courses, $totalcount);
-            global $OUTPUT;
-            switch ($ob->tool_coursesearch_pluginchecks()) {
-                case 1:
-                    $content .= $OUTPUT->notification(get_string('admintoolerror', 'theme_cleantheme'), 'notifyproblem');
-                    break;
-                case 02:
-                    $content .= $OUTPUT->notification(get_string('solrpingerror', 'theme_cleantheme'), 'notifyproblem');
-                    break;
-                case 12:
-                    $content .= $OUTPUT->notification(get_string('dependencyerror', 'theme_cleantheme'), 'notifyproblem');
+            if (!get_config('tool_coursesearch', 'solrerrormessage')) {
+                global $OUTPUT;
+                switch ($ob->tool_coursesearch_pluginchecks()) {
+                    case 1:
+                        $content .= $OUTPUT->notification(get_string('admintoolerror', 'theme_cleantheme'), 'notifyproblem');
+                        break;
+                    case 02:
+                        $content .= $OUTPUT->notification(get_string('solrpingerror', 'theme_cleantheme'), 'notifyproblem');
+                        break;
+                    case 12:
+                        $content .= $OUTPUT->notification(get_string('dependencyerror', 'theme_cleantheme'), 'notifyproblem');
+                }
             }
             if (!$totalcount) {
                 if (!empty($searchcriteria['search'])) {
