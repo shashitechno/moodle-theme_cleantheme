@@ -176,13 +176,13 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 global $OUTPUT;
                 switch ($ob->tool_coursesearch_pluginchecks()) {
                     case 1:
-                        $content .= $OUTPUT->notification(get_string('admintoolerror', 'theme_cleantheme'), 'notifyproblem');
+                        $content .= $OUTPUT->notification(get_string('admintoolerror', 'tool_coursesearch'), 'notifyproblem');
                         break;
                     case 02:
-                        $content .= $OUTPUT->notification(get_string('solrpingerror', 'theme_cleantheme'), 'notifyproblem');
+                        $content .= $OUTPUT->notification(get_string('solrpingerror', 'tool_coursesearch'), 'notifyproblem');
                         break;
                     case 12:
-                        $content .= $OUTPUT->notification(get_string('dependencyerror', 'theme_cleantheme'), 'notifyproblem');
+                        $content .= $OUTPUT->notification(get_string('dependencyerror', 'tool_coursesearch'), 'notifyproblem');
                 }
             }
             if (!$totalcount) {
