@@ -34,78 +34,14 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      * @return string
      */
     public function course_search_form($value = '', $format = 'plain') {
+        global $CFG;
         $this->page->requires->js_init_call('M.tool_coursesearch.auto');
-        static $count = 0;
-        $formid = 'coursesearch';
-        if ((++$count) > 1) {
-            $formid .= $count;
-        }
-        switch ($format) {
-            case 'navbar':
-                $formid    = 'coursesearchnavbar';
-                $inputid   = 'navsearchbox';
-                $inputsize = 40;
-                break;
-            case 'short':
-                $inputid   = 'shortsearchbox';
-                $inputsize = 12;
-                break;
-            default:
-                $inputid   = 'coursesearchbox';
-                $inputsize = 30;
-        }
-        $strsearchcourses = get_string("searchcourses");
-        $searchurl        = new moodle_url('/course/search.php');
-        $output           = html_writer::start_tag('form', array(
-            'id' => $formid,
-            'action' => $searchurl,
-            'method' => 'get'
+        $this->page->requires->js_init_call('M.tool_coursesearch.sort');
+        require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/coursesearch_resultsui_form.php");
+        $mform = new coursesearch_resultsui_form(new moodle_url('/course/search.php'), null, 'post', null, array(
+            "id" => "searchformui"
         ));
-        $output .= html_writer::start_tag('fieldset', array(
-            'class' => 'coursesearchbox invisiblefieldset'
-        ));
-        $output .= html_writer::tag('label', $strsearchcourses . ': ', array(
-            'for' => $inputid
-        ));
-        $output .= html_writer::empty_tag('input', array(
-            'type' => 'text',
-            'id' => $inputid,
-            'size' => $inputsize,
-            'name' => 'search',
-            'value' => s($value)
-        ));
-        $output .= html_writer::empty_tag('input', array(
-            'type' => 'submit',
-            'value' => get_string('go')
-        ));
-        $items = array(
-            html_writer::link(new moodle_url('/course/search.php', array(
-                'search' => optional_param('search', '', PARAM_TEXT),
-                'sort' => 'score',
-                'order' => 'desc'
-            )), 'By Relevance'),
-            html_writer::link(new moodle_url('/course/search.php', array(
-                'search' => optional_param('search', '', PARAM_TEXT),
-                'sort' => 'shortname',
-                'order' => 'desc'
-            )), 'By ShortName'),
-            html_writer::link(new moodle_url('/course/search.php', array(
-                'search' => optional_param('search', '', PARAM_TEXT),
-                'sort' => 'startdate',
-                'order' => 'asc'
-            )), 'Oldest'),
-            html_writer::link(new moodle_url('/course/search.php', array(
-                'search' => optional_param('search', '', PARAM_TEXT),
-                'sort' => 'startdate',
-                'order' => 'desc'
-            )), 'Newest')
-        );
-        $output .= html_writer::alist($items, array(
-            "class" => "solr_sort2"
-        ), 'ol');
-        $output .= html_writer::end_tag('fieldset');
-        $output .= html_writer::end_tag('form');
-        return $output;
+        $mform->display();
     }
     /**
      * Renders html to display search result page
@@ -137,7 +73,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             $class                                = 'course-search-result';
             $chelper                              = new coursecat_helper();
             $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->set_courses_display_options(
-            $displayoptions)->set_search_criteria($searchcriteria)->set_attributes(array(
+                $displayoptions)->set_search_criteria($searchcriteria)->set_attributes(array(
                 'class' => $class
             ));
             if ($ob->tool_coursesearch_pluginchecks() == '0') {
