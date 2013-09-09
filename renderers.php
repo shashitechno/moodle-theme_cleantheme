@@ -24,6 +24,7 @@ class theme_cleantheme_core_renderer extends theme_bootstrapbase_core_renderer
 {
 }
 require_once($CFG->dirroot . "/course/renderer.php");
+require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
 class theme_cleantheme_core_course_renderer extends core_course_renderer
 {
     /**   @override
@@ -35,7 +36,8 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      */
     public function course_search_form($value = '', $format = 'plain') {
         global $CFG;
-        $this->page->requires->js_init_call('M.tool_coursesearch.auto');
+        $ob = new tool_coursesearch_locallib();
+        $this->page->requires->js_init_call('M.tool_coursesearch.auto', $ob->tool_coursesearch_autosuggestparams());
         $this->page->requires->js_init_call('M.tool_coursesearch.sort');
         require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/coursesearch_resultsui_form.php");
         $mform = new coursesearch_resultsui_form(new moodle_url('/course/search.php'), null, 'post', null, array(
@@ -54,7 +56,6 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $content = '';
         if (!empty($searchcriteria)) {
             require_once($CFG->libdir . '/coursecatlib.php');
-            require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
             $displayoptions = array(
                 'sort' => array(
                     'displayname' => 1
