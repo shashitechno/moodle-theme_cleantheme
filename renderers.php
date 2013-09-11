@@ -24,7 +24,7 @@ class theme_cleantheme_core_renderer extends theme_bootstrapbase_core_renderer
 {
 }
 require_once($CFG->dirroot . "/course/renderer.php");
-require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
+
 class theme_cleantheme_core_course_renderer extends core_course_renderer
 {
     /**   @override
@@ -40,6 +40,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         $this->page->requires->js_init_call('M.tool_coursesearch.auto', $ob->tool_coursesearch_autosuggestparams());
         $this->page->requires->js_init_call('M.tool_coursesearch.sort');
         require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/coursesearch_resultsui_form.php");
+        require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
         $mform = new coursesearch_resultsui_form(new moodle_url('/course/search.php'), null, 'post', null, array(
             "id" => "searchformui"
         ));
@@ -53,6 +54,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      */
     public function search_courses($searchcriteria) {
         global $CFG;
+        require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
         $content = '';
         if (!empty($searchcriteria)) {
             require_once($CFG->libdir . '/coursecatlib.php');
@@ -78,7 +80,9 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 'class' => $class
             ));
             if ($ob->tool_coursesearch_pluginchecks() == '0') {
-                $response   = $ob->tool_coursesearch_search($displayoptions);
+                $results    = $ob->tool_coursesearch_search($displayoptions);
+                $qtime      = $results->responseHeader->QTime;
+                $response   = $results->grouped->courseid;
                 $resultinfo = array();
                 foreach ($response->groups as $doclists => $doclist) {
                     foreach ($doclist->doclist->docs as $doc) {
@@ -130,6 +134,9 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 }
             } else {
                 $content .= $this->heading(get_string('searchresults') . ": $totalcount");
+                if (isset($qtime)) {
+                    $content .= html_writer::tag('em', "Query Time " . $qtime / (1000) . " Seconds");
+                }
                 $content .= $courseslist;
             }
             if (!empty($searchcriteria['search'])) {
@@ -144,6 +151,15 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 'class' => 'searchhelp'
             ));
             $content .= $this->box_end();
+        }
+        if (isset($results->spellcheck->suggestions->collation)) {
+            $didyoumean = $results->spellcheck->suggestions->collation->collationQuery;
+        } else {
+            $didyoumean = false;
+        }
+        if ($didyoumean != false) {
+            echo html_writer::tag('h3', get_string('didyoumean', 'tool_coursesearch') . html_writer::link(
+                new moodle_url('search.php?search=' . rawurlencode($didyoumean)), $didyoumean) . '?');
         }
         return $content;
     }
