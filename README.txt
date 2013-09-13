@@ -1,13 +1,22 @@
-Cleantheme is based on moodle "Clean" theme.
+moodle-theme_cleantheme shows how the results evaluted from course search plugin are displayed. It is based on bootstrap
+clean theme.
 
 **** To enable "advance course search" ****
 
-Either you can copy file renderer.php file to your theme renderer.php file.
+you may install search_cleantheme.
 
-* replace /theme/cleantheme/renderer.php with /theme/yourtheme/renderer.php
+OR 
 
-OR you may install cleantheme.
+follow these steps.
 
-you just need to replace renderer that will override core_course_renderer.
+Step 1 Either copy/replace file renderer.php file to your theme renderer.php file.
+
+---> * replace /theme/cleantheme/renderer.php with /theme/yourtheme/renderer.php
+
+---> * The standard theme doesn't have renderer file so you need to simply copy the renderer file.
+
+Step 2 rename renderer class name acording to your theme name.
+
+for example if you are using theme 'clean' then rename the class names to 'theme_clean_core_renderer' & 'theme_clean_core_course_renderer'.
 
 Thanks :)
