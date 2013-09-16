@@ -24,7 +24,6 @@ class theme_cleantheme_core_renderer extends theme_bootstrapbase_core_renderer
 {
 }
 require_once($CFG->dirroot . "/course/renderer.php");
-
 class theme_cleantheme_core_course_renderer extends core_course_renderer
 {
     /**   @override
@@ -36,15 +35,25 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      */
     public function course_search_form($value = '', $format = 'plain') {
         global $CFG;
-        $ob = new tool_coursesearch_locallib();
-        $this->page->requires->js_init_call('M.tool_coursesearch.auto', $ob->tool_coursesearch_autosuggestparams());
-        $this->page->requires->js_init_call('M.tool_coursesearch.sort');
-        require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/coursesearch_resultsui_form.php");
-        require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
-        $mform = new coursesearch_resultsui_form(new moodle_url('/course/search.php'), null, 'post', null, array(
-            "id" => "searchformui"
-        ));
-        $mform->display();
+        if ($this->validateplugindepedency()) {
+            require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/coursesearch_resultsui_form.php");
+            require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
+            $ob = new tool_coursesearch_locallib();
+            if ($ob->tool_coursesearch_pingsolr()) {
+                $this->page->requires->js_init_call('M.tool_coursesearch.auto', $ob->tool_coursesearch_autosuggestparams());
+                $this->page->requires->js_init_call('M.tool_coursesearch.sort');
+                $mform = new coursesearch_resultsui_form(new moodle_url('/course/search.php'), null, 'post', null, array(
+                    "id" => "searchformui"
+                ));
+                if ($format == 'solr' || empty($_REQUEST['search'])) {
+                    $mform->display();
+                }
+            } else {
+                return parent::course_search_form();
+            }
+        } else {
+            return parent::course_search_form();
+        }
     }
     /**
      * Renders html to display search result page
@@ -54,7 +63,6 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      */
     public function search_courses($searchcriteria) {
         global $CFG;
-        require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
         $content = '';
         if (!empty($searchcriteria)) {
             require_once($CFG->libdir . '/coursecatlib.php');
@@ -63,7 +71,6 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                     'displayname' => 1
                 )
             );
-            $ob             = new tool_coursesearch_locallib();
             $perpage        = optional_param('perpage', 0, PARAM_RAW);
             if ($perpage !== 'all') {
                 $displayoptions['limit']  = ((int) $perpage <= 0) ? $CFG->coursesperpage : (int) $perpage;
@@ -79,30 +86,41 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 $displayoptions)->set_search_criteria($searchcriteria)->set_attributes(array(
                 'class' => $class
             ));
-            if ($ob->tool_coursesearch_pluginchecks() == '0') {
-                $results    = $ob->tool_coursesearch_search($displayoptions);
-                $qtime      = $results->responseHeader->QTime;
-                $response   = $results->grouped->courseid;
-                $resultinfo = array();
-                foreach ($response->groups as $doclists => $doclist) {
-                    foreach ($doclist->doclist->docs as $doc) {
-                        $doc->id = $doc->courseid;
-                        foreach ($doc as $key => $value) {
-                            $resultinfo[$key] = $value;
-                        }
-                        $obj[$doc->courseid] = json_decode(json_encode($resultinfo), false);
-                        if (($obj[$doc->courseid]->visibility) == '0') {
-                            context_helper::preload_from_record($obj[$doc->courseid]);
-                            if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($doc->courseid))) {
-                                unset($obj[$doc->courseid]);
+            if ($this->validateplugindepedency()) {
+                require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
+                $ob = new tool_coursesearch_locallib();
+                if ($ob->tool_coursesearch_pingsolr()) {
+                    $results    = $ob->tool_coursesearch_search($displayoptions);
+                    $qtime      = $results->responseHeader->QTime;
+                    $response   = $results->grouped->courseid;
+                    $resultinfo = array();
+                    foreach ($response->groups as $doclists => $doclist) {
+                        foreach ($doclist->doclist->docs as $doc) {
+                            $doc->id = $doc->courseid;
+                            foreach ($doc as $key => $value) {
+                                $resultinfo[$key] = $value;
+                            }
+                            $obj[$doc->courseid] = json_decode(json_encode($resultinfo), false);
+                            if (($obj[$doc->courseid]->visibility) == '0') {
+                                context_helper::preload_from_record($obj[$doc->courseid]);
+                                if (!has_capability('moodle/course:viewhiddencourses', context_course::instance($doc->courseid))) {
+                                    unset($obj[$doc->courseid]);
+                                }
+                            }
+                            if (isset($obj[$doc->courseid])) {
+                                $courses[$doc->courseid] = new course_in_list($obj[$doc->courseid]);
                             }
                         }
-                        if (isset($obj[$doc->courseid])) {
-                            $courses[$doc->courseid] = new course_in_list($obj[$doc->courseid]);
-                        }
                     }
+                    $totalcount = $ob->tool_coursesearch_coursecount($response);
+                } else {
+                    if (!get_config('tool_coursesearch', 'solrerrormessage')) {
+                        global $OUTPUT;
+                        $content .= $OUTPUT->notification(get_string('solrpingerror', 'tool_coursesearch'), 'notifyproblem');
+                    }
+                    $courses    = coursecat::search_courses($searchcriteria, $chelper->get_courses_display_options());
+                    $totalcount = coursecat::search_courses_count($searchcriteria);
                 }
-                $totalcount = $ob->tool_coursesearch_coursecount($response);
             } else {
                 $courses    = coursecat::search_courses($searchcriteria, $chelper->get_courses_display_options());
                 $totalcount = coursecat::search_courses_count($searchcriteria);
@@ -113,19 +131,6 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 }
             }
             $courseslist = $this->coursecat_courses($chelper, $courses, $totalcount);
-            if (!get_config('tool_coursesearch', 'solrerrormessage')) {
-                global $OUTPUT;
-                switch ($ob->tool_coursesearch_pluginchecks()) {
-                    case 1:
-                        $content .= $OUTPUT->notification(get_string('admintoolerror', 'tool_coursesearch'), 'notifyproblem');
-                        break;
-                    case 02:
-                        $content .= $OUTPUT->notification(get_string('solrpingerror', 'tool_coursesearch'), 'notifyproblem');
-                        break;
-                    case 12:
-                        $content .= $OUTPUT->notification(get_string('dependencyerror', 'tool_coursesearch'), 'notifyproblem');
-                }
-            }
             if (!$totalcount) {
                 if (!empty($searchcriteria['search'])) {
                     $content .= $this->heading(get_string('nocoursesfound', '', $searchcriteria['search']));
@@ -141,12 +146,12 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             }
             if (!empty($searchcriteria['search'])) {
                 $content .= $this->box_start('generalbox mdl-align');
-                $content .= $this->course_search_form($searchcriteria['search']);
+                $content .= $this->course_search_form($searchcriteria['search'], 'solr');
                 $content .= $this->box_end();
             }
         } else {
-            $content .= $this->box_start('generalbox mdl-align');
             $content .= $this->course_search_form();
+            $content .= $this->box_start('generalbox mdl-align');
             $content .= html_writer::tag('div', get_string("searchhelp"), array(
                 'class' => 'searchhelp'
             ));
