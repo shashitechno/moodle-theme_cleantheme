@@ -168,4 +168,12 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
         }
         return $content;
     }
+    public function validateplugindepedency() {
+        global $CFG;
+        $libfile = "$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php";
+        if (file_exists($libfile) && array_key_exists('coursesearch', get_plugin_list('tool'))) {
+            return true;
+        }
+        return false;
+    }
 }
