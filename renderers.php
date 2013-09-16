@@ -151,11 +151,13 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             }
         } else {
             $content .= $this->course_search_form();
-            $content .= $this->box_start('generalbox mdl-align');
-            $content .= html_writer::tag('div', get_string("searchhelp"), array(
-                'class' => 'searchhelp'
-            ));
-            $content .= $this->box_end();
+            if (!($content === '')) {
+                $content .= $this->box_start('generalbox mdl-align');
+                $content .= html_writer::tag('div', get_string("searchhelp"), array(
+                    'class' => 'searchhelp'
+                ));
+                $content .= $this->box_end();
+            }
         }
         if (isset($results->spellcheck->suggestions->collation)) {
             $didyoumean = $results->spellcheck->suggestions->collation->collationQuery;
