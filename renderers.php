@@ -44,10 +44,10 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 ));
                 $mform->display();
             } else {
-                return parent::course_search_form();
+                return parent::course_search_form($value, $format);
             }
         } else {
-            return parent::course_search_form();
+            return parent::course_search_form($value, $format);
         }
     }
     /**
