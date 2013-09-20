@@ -20,9 +20,6 @@
  * @copyright  2013
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class theme_cleantheme_core_renderer extends theme_bootstrapbase_core_renderer
-{
-}
 require_once($CFG->dirroot . "/course/renderer.php");
 class theme_cleantheme_core_course_renderer extends core_course_renderer
 {
@@ -35,7 +32,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
      */
     public function course_search_form($value = '', $format = 'plain') {
         global $CFG;
-        if ($this->validateplugindepedency()) {
+        if ($this->validateplugindepedency() && $format == 'plain') {
             require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/coursesearch_resultsui_form.php");
             require_once("$CFG->dirroot/$CFG->admin/tool/coursesearch/locallib.php");
             $ob = new tool_coursesearch_locallib();
@@ -45,9 +42,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
                 $mform = new coursesearch_resultsui_form(new moodle_url('/course/search.php'), null, 'post', null, array(
                     "id" => "searchformui"
                 ));
-                if ($format == 'solr' || empty($_REQUEST['search'])) {
-                    $mform->display();
-                }
+                $mform->display();
             } else {
                 return parent::course_search_form();
             }
@@ -146,7 +141,7 @@ class theme_cleantheme_core_course_renderer extends core_course_renderer
             }
             if (!empty($searchcriteria['search'])) {
                 $content .= $this->box_start('generalbox mdl-align');
-                $content .= $this->course_search_form($searchcriteria['search'], 'solr');
+                $content .= $this->course_search_form($searchcriteria['search']);
                 $content .= $this->box_end();
             }
         } else {
