@@ -17,6 +17,6 @@ Step 1 Either copy/replace file renderer.php file to your theme renderer.php fil
 
 Step 2 rename renderer class name acording to your theme name.
 
-for example if you are using theme 'clean' then rename the class names to 'theme_clean_core_renderer' & 'theme_clean_core_course_renderer'.
+for example if you are using theme 'clean' then rename the class name to 'theme_clean_core_course_renderer'.
 
 Thanks :)
