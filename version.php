@@ -27,7 +27,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die;
-$plugin->version      = 2013050102;
+$plugin->version      = 2013050101;
 $plugin->requires     = 2013050100;
 $plugin->component    = 'theme_cleantheme';
 $plugin->dependencies = array(
